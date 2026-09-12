@@ -1,0 +1,64 @@
+name: Sync PR build verify
+
+# Build the unified release for CrossMux candidates created by the
+# sync-upstream skill. Regular PR CI covers the development build and code
+# checks; this workflow adds gh_release and can also be run manually.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+  push:
+    branches: ['codex/sync-upstream-*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sync-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  select_runner:
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/heads/codex/sync-upstream-')) ||
+      (github.event_name == 'pull_request' && startsWith(github.head_ref, 'codex/sync-upstream-'))
+    uses: ./.github/workflows/select-build-runner.yml
+    secrets:
+      runner_status_token: ${{ secrets.H2O_RUNNER_TOKEN }}
+
+  build:
+    needs: select_runner
+    runs-on: ${{ fromJSON(needs.select_runner.outputs['runs-on']) }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.14'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "latest"
+          enable-cache: false
+
+      - name: Install PlatformIO Core
+        run: uv pip install --system -U pioarduino==6.1.19
+
+      - name: Cache PlatformIO packages
+        if: runner.environment == 'github-hosted'
+        uses: actions/cache@v4
+        with:
+          path: ~/.platformio/.cache
+          key: pio-cache-${{ runner.os }}-${{ hashFiles('platformio.ini') }}
+          restore-keys: pio-cache-${{ runner.os }}-
+
+      - name: Build unified release
+        run: |
+          set -euo pipefail
+          pio run -e gh_release
