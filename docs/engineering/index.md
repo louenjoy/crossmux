@@ -29,6 +29,8 @@ that matches your task — don't load everything at once.
 | [sdk-upstream-sync.md](sdk-upstream-sync.md) | Reviewing the September 2026 SDK integration, upstream touch-menu behavior, source snapshots, and hardware acceptance limits. |
 | [upstream-merge-policy.md](upstream-merge-policy.md) | Reconciling upstream guide changes with the canonical `AGENTS.md` layout — how to keep the map thin and route upstream changes into these docs. |
 | [Metalio E-Ink 4](metalio-eink4.md) | Metalio BSP, CST816S bezel keys, SDMMC, power sequencing and acceptance |
+| [Metalio E-Ink 4 flash incident](metalio-eink4-flash-incident-2026-09-15.md) | A bricked-into-WDT-loop flash recovery session: the Back button = BOOT0 (GPIO0) download-mode entry, the flash chip not power-cycling on ESP32 reset, the error dictionary, and the 512 KB slice recovery recipe. |
+| [Metalio E-Ink 4 bad-sector bypass](metalio-eink4-bad-sector-bypass.md) | A deterministic bad flash sector at `0xEE000` (inside `app0`): reproducible evidence, the ruled-out causes, and the committed `partitions.metalio_bypass.csv` + `[env:metalio_eink4]` bypass that shifts `app0` to `0xF0000`. |
 
 ## Related docs outside this directory
 

@@ -1,0 +1,16 @@
+# Local bypass for a Metalio E-Ink 4 unit with a deterministic bad flash
+# sector at 0xEE000. Used only by [env:metalio_eink4] (development); nightly
+# releases keep the shipping partitions.csv. See
+# docs/engineering/metalio-eink4-bad-sector-bypass.md
+#
+# app0 is shifted from 0x10000 to 0xF0000 to skip the bad sector; the range
+# 0x10000-0xF0000 is intentionally left unallocated. Both app slots keep
+# 0x640000 so OTA and font-cache sizing are unchanged; the 896KB cost is taken
+# from the unused spiffs partition. No SPIFFS is mounted by this firmware.
+# Name,   Type, SubType, Offset,  Size, Flags
+nvs,      data, nvs,     0x9000,  0x5000,
+otadata,  data, ota,     0xe000,  0x2000,
+app0,     app,  ota_0,   0xf0000, 0x640000,
+app1,     app,  ota_1,   0x730000,0x640000,
+spiffs,   data, spiffs,  0xd70000,0x280000,
+coredump, data, coredump,0xFF0000,0x10000,
